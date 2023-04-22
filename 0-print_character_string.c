@@ -1,94 +1,59 @@
 #include "main.h"
+#include <stdarg.h>
+#include <unistd.h>
 
-/**                                                                                                                                                  
- * print_buffer - Prints the contents of the buffer if it exist                                                                                      
- * @buffer: Array of chars                                                                                                                           
- * @buff_ind: Index at which to add next char, represents the length.                                                                                
- */
-void print_buffer(char buffer[], int *buff_ind)
-{
-  if (*buff_ind > 0)
-    write(1, &buffer[0], *buff_ind);
-
-  *buff_ind = 0;
-}
-
-/**                                                                                                                                                  
- * _printf - Printf function                                                                                                                         
- * @format: format.                                                                                                                                  
- * Return: Printed chars.                                                                                                                            
+/**
+ * _printf - produces output according to a format
+ * @format: character string containing format specifier
+ *
+ * Return: number of characters printed
  */
 int _printf(const char *format, ...)
 {
-  va_list list;
-  int print_char = 0, buff_ind = 0, i;
-  char buffer[BUFF_SIZE];
-  char *string;
-  unsigned int j;
+    va_list args;
+    int printed_chars = 0;
 
-  va_start(list, format);
+    va_start(args, format);
 
-  if (format == NULL)
-    return (-1);
-
-  for (i = 0; format[i] != '\0'; i++)
+    while (*format)
     {
-      if (format[i] != '%')
+        if (*format == '%')
         {
-          buffer[buff_ind++] = format[i];
-          if (buff_ind == BUFF_SIZE)
+            format++;	    
+            if (*format == 'c')
             {
-              print_buffer(buffer, &buff_ind);
-              print_char += buff_ind;
+                char c = va_arg(args, int);
+                write(1, &c, 1);
+                printed_chars++;
             }
-          else
+            else if (*format == 's')
             {
-              print_char++;
+                char *s = va_arg(args, char *);
+                if (s)
+                {
+                    while (*s)
+                    {
+                        write(1, s, 1);
+                        s++;
+                        printed_chars++;
+                    }
+                }
+            }
+            else if (*format == '%')
+	      {
+                write(1, "%", 1);
+                printed_chars++;
             }
         }
-      else
+        else
         {
-          print_buffer(buffer, &buff_ind);
-          i++;
-          switch (format[i])
-		     {
-            case 'c':
-              write(1, &va_arg(list, int), 1);
-              print_char++;
-              break;
-            case 's':
-              string = va_arg(list, char *);
-              if (string == NULL)
-                string = "(null)";
-              while (*string != '\0')
-                {
-                  write(1, string, 1);
-                  string++;
-                  print_char++;
-                }
-              break;
-            case '%':
-              write(1, &format[i], 1);
-              print_char++;
-              break;
-            case 'b':
-              n = va_arg(list, unsigned int);
-              print_binary(n, &buff_ind, buffer);
-              print_char += buff_ind;
-			                break;
-            default:
-              write(1, "%", 1);
-              print_char++;
-              if (format[i] != '\0')
-                {
-                  write(1, &format[i], 1);
-                  print_char++;
-                }
-              break;
-            }
+            write(1, format, 1);
+            printed_chars++;
         }
+        format++;
     }
-  print_buffer(buffer, &buff_ind);
-  va_end(list);
-  return (print_char);
+
+    va_end(args);
+
+    return (printed_chars);
 }
