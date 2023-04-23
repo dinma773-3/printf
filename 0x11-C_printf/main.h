@@ -8,5 +8,6 @@
 
 int handle_binary(va_list args);
 int _printf(const char *format, ...);
+int handle_integer(va_list args, int printed_chars);
 
 #endif
