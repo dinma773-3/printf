@@ -1,6 +1,4 @@
 #include "main.h"
-#include <stdarg.h>
-#include <unistd.h>
 
 /**
  * _printf - produces output according to a format
@@ -10,50 +8,68 @@
  */
 int _printf(const char *format, ...)
 {
-    va_list args;
-    int printed_chars = 0;
+	int i = 0, printed_chars = 0, len = 0;
+	va_list args;
 
-    va_start(args, format);
+	va_start(args, format);
+	for (; (*format); format++)
+	{
+		if (*format != '%')
+		{
+			write(1, format, 1);
+			printed_chars++;
+		}
+		else
+		{
+			format++;
+			switch (*format)
+			{
+				case 'c':
+					{
+						char c = 'h';
 
-    while (*format)
-    {
-        if (*format == '%')
-        {
-            format++;	    
-            if (*format == 'c')
-            {
-                char c = va_arg(args, int);
-                write(1, &c, 1);
-                printed_chars++;
-            }
-            else if (*format == 's')
-            {
-                char *s = va_arg(args, char *);
-                if (s)
-                {
-                    while (*s)
-                    {
-                        write(1, s, 1);
-                        s++;
-                        printed_chars++;
-                    }
-                }
-            }
-            else if (*format == '%')
-	      {
-                write(1, "%", 1);
-                printed_chars++;
-            }
-        }
-        else
-        {
-            write(1, format, 1);
-            printed_chars++;
-        }
-        format++;
-    }
+						if(c)
+						       c = va_arg(args, int);
+						printed_chars++;
+						break;
+					}
+				case 's':
+				{
+					char *s = va_arg(args, char*);
 
-    va_end(args);
-
-    return (printed_chars);
+					for (; s[len]; i++)
+					{
+						len++;
+					}
+					write(1, s, len);
+					printed_chars += len;
+					break;
+				}
+				case '%':
+					{
+						write(1, "%", 1);
+						printed_chars++;
+						break;
+					}
+				case 'b':
+					{
+						printed_chars = handle_binary(args);
+						break;
+					}
+				case 'd':
+				case 'i':
+					{
+						handle_integer(args, printed_chars);
+						break;
+					}
+				case '\0':
+					{
+						va_end(args);
+						return (-1);
+					}
+			}
+		}
+	}
+	va_end(args);
+	return (printed_chars);
 }
