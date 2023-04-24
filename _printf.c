@@ -1,66 +1,128 @@
 #include "main.h"
-
-void print_buffer(char buffer[], int *buff_ind);
+#include <stdarg.h>
+#include <stdio.h>
 
 /**
- * _printf - Printf function
- * @format: format.
- * Return: Printed chars.
+ * print_number - Prints a number of any digit.
+ *
+ * @n: The number to be printed.
+ * @base: The base of the number system to be printed.
+ * @uppercase: A flag indicating whether to use uppercase letters for the digits
+ *              (for bases greater than 10).
+ * @print: The function to use for printing individual characters.
+ *
+ * Return: The number of characters printed.
  */
-int _printf(const char *format, ...)
+static int print_number(unsigned long int n, unsigned int base,
+                         int uppercase, int (*print)(char))
 {
-  int i, printed = 0, printed_chars = 0;
-  int flags, width, precision, size, buff_ind = 0;
-  va_list args;
-  char buffer[BUFF_SIZE];
+  char digits[] = "0123456789abcdef";
+  char buffer[50];
+  char *pos = &buffer[49];
+  int count = 0;
 
-  if (format == NULL)
-    return (-1);
+  if (n == 0)
+    return (print('0'));
 
-  va_start(args, format);
+  if (base < 2 || base > 16)
+    return (0);
 
-  for (i = 0; format && format[i] != '\0'; i++)
-    {
-      if (format[i] != '%')
-	{
-	  buffer[buff_ind++] = format[i];
-	  if (buff_ind == BUFF_SIZE)
-	    print_buffer(buffer, &buff_ind);
-	  /* write(1, &format[i], 1);*/
-	  printed_chars++;
-	}
-      else
-	{
-	  print_buffer(buffer, &buff_ind);
-	  flags = get_flags(format, &i);
-	  width = get_width(format, &i, args);
-	  precision = get_precision(format, &i, args);
-	  size = get_size(format, &i);
-	  ++i;
-	  printed = handle_print(format, &i, args, buffer,
-				 flags, width, precision, size);
-	  if (printed == -1)
-	    return (-1);
-	  printed_chars += printed;
-	}
-    }
+  *pos = '\0';
 
-  print_buffer(buffer, &buff_ind);
+  while (n != 0)
+  {
+    *--pos = digits[n % base];
+    n /= base;
+  }
 
-  va_end(args);
+  if (uppercase)
+    for (; *pos != '\0'; pos++)
+      if (*pos >= 'a' && *pos <= 'z')
+        *pos = *pos - ('a' - 'A');
 
-  return (printed_chars);
+  for (; *pos != '\0'; pos++)
+  {
+    if (print(*pos) < 0)
+      return (-1);
+
+    count++;
+  }
+
+  return (count);
 }
 
 /**
- * print_buffer - Prints the contents of the buffer if it exist
- * @buffer: Array of chars
- * @buff_ind: Index at which to add next char, represents the length.
+ * _printf - Prints a formatted string to the standard output.
+ *
+ * @format: The format string to print.
+ * @...: The optional arguments to be inserted into the format string.
+ *
+ * Return: The number of characters printed (excluding the null byte used to end
+ *         output to strings), or a negative value if an error occurs.
  */
-void print_buffer(char buffer[], int *buff_ind)
+int _printf(const char *format, ...)
 {
-  if (*buff_ind > 0)
-    write(1, &buffer[0], *buff_ind);
+  va_list args;
+  int count = 0;
 
-  *buff_ind = 0;
+  va_start(args, format);
+
+  while (*format != '\0')
+  {
+    if (*format != '%')
+    {
+      if (putchar(*format) < 0)
+      {
+        va_end(args);
+        return (-1);
+      }
+
+      count++;
+    }
+    else
+    {
+      int width = 0;
+      int precision = -1;
+      int length = 0;
+      int uppercase = 0;
+      int prefix = 0;
+      int sign = 0;
+      char pad = ' ';
+
+      format++;
+
+      while (*format != '\0' && (*format == '-' || *format == '+' ||
+                                 *format == ' ' || *format == '#' ||
+                                 *format == '0'))
+      {
+        if (*format == '-')
+          pad = '-';
+        else if (*format == '+')
+          sign = '+';
+        else if (*format == ' ')
+          sign = ' ';
+        else if (*format == '#')
+          prefix = 1;
+        else if (*format == '0' && width == 0 && precision == -1)
+          pad = '0';
+
+        format++;
+      }
+
+      while (*format != '\0' && (*format >= '0' && *format <= '9'))
+      {
+        width = width * 10 + (*format - '0');
+        format++;
+      }
+
+      if (*format == '.')
+      {
+        format++;
+
+        precision = 0;
+
+        while (*format != '\0' && (*format >= '0' && *format <= '9'))
+        {
+          precision = precision * 10 + (*format - '0');
+    format++;
 }
