@@ -11,7 +11,7 @@
  */
 int _putchar(char c)
 {
-    return (write(1, &c, 1));
+  return (write(1, &c, 1));
 }
 
 /**
@@ -22,30 +22,30 @@ int _putchar(char c)
  */
 int _printf(const char *format, ...)
 {
-    va_list args;
-    int i = 0, count = 0;
-    char *str;
+  va_list args;
+  int i = 0, count = 0;
+  char *str;
 
-    va_start(args, format);
-    while (format && format[i])
+  va_start(args, format);
+  while (format && format[i])
     {
-        if (format[i] == '%')
+      if (format[i] == '%')
         {
-            i++;
-            if (format[i] == 'c')
+	  i++;
+	  if (format[i] == 'c')
             {
-                _putchar(va_arg(args, int));
-                count++;
+	      _putchar(va_arg(args, int));
+	      count++;
             }
-            else if (format[i] == 's')
+	  else if (format[i] == 's')
             {
-                str = va_arg(args, char *);
-                if (str == NULL)
-                    str = "(null)";
-                while (*str)
+	      str = va_arg(args, char *);
+	      if (str == NULL)
+		str = "(null)";
+	      while (*str)
                 {
-                    _putchar(*str++);
-                    count++;
+		  _putchar(*str++);
+		  count++;
                 }
             }
             else if (format[i] == '%')

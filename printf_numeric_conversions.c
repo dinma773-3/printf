@@ -16,7 +16,7 @@ int print_u(va_list args)
 
 	while (divisor != 0)
 	{
-		_putchar('0' + remainder / divisor);
+		putchar('0' + remainder / divisor);
 		remainder %= divisor;
 		divisor /= 10;
 		num_digits++;
@@ -41,7 +41,7 @@ int print_o(va_list args)
 
 	while (divisor != 0)
 	{
-		_putchar('0' + remainder / divisor);
+		putchar('0' + remainder / divisor);
 		remainder %= divisor;
 		divisor /= 8;
 		num_digits++;
@@ -67,7 +67,7 @@ int print_x(va_list args)
 
 	while (divisor != 0)
 	{
-		_putchar(hex_digits[remainder / divisor]);
+		putchar(hex_digits[remainder / divisor]);
 		remainder %= divisor;
 		divisor /= 16;
 		num_digits++;
@@ -93,7 +93,7 @@ int print_X(va_list args)
 
 	while (divisor != 0)
 	{
-		_putchar(hex_digits[remainder / divisor]);
+		putchar(hex_digits[remainder / divisor]);
 		remainder %= divisor;
 		divisor /= 16;
 		num_digits++;

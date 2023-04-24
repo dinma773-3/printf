@@ -10,42 +10,42 @@
  */
 int _printf(const char *format, ...)
 {
-    va_list args;
-    int printed_chars = 0;
+  va_list args;
+  int printed_chars = 0;
 
-    va_start(args, format);
+  va_start(args, format);
 
-    while (*format != '\0')
+  while (*format != '\0')
     {
-        if (*format == '%')
+      if (*format == '%')
         {
-            format++;
-            switch (*format)
+	  format++;
+	  switch (*format)
             {
-                case 'c':
-                    printed_chars += putchar(va_arg(args, int));
-                    break;
-                case 's':
-                    printed_chars += printf("%s", va_arg(args, char *));
-                    break;
-                case '%':
-                    printed_chars += putchar('%');
-                    break;
-                default:
-                    printed_chars += putchar('%');
-                    printed_chars += putchar(*format);
-                    break;
+	    case 'c':
+	      printed_chars += putchar(va_arg(args, int));
+	      break;
+	    case 's':
+	      printed_chars += printf("%s", va_arg(args, char *));
+	      break;
+	    case '%':
+	      printed_chars += putchar('%');
+	      break;
+	    default:
+	      printed_chars += putchar('%');
+	      printed_chars += putchar(*format);
+	      break;
             }
         }
-        else
+      else
         {
-            printed_chars += putchar(*format);
+	  printed_chars += putchar(*format);
         }
 
-        format++;
+      format++;
     }
 
-    va_end(args);
+  va_end(args);
 
-    return printed_chars;
+  return printed_chars;
 }
