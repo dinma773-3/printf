@@ -1,121 +1,65 @@
-#ifndef _MAIN_H_
-#define _MAIN_H_
+#ifndef MAIN_H
+#define MAIN_H
 
-#include <stdarg.h>
 #include <stdio.h>
+#include <stdarg.h>
+#include <stdlib.h>
 #include <unistd.h>
 #include <limits.h>
-#include <stdlib.h>
 
-#define OUTPUT_BUF_SIZE 1024
-#define BUF_FLUSH -1
+#define FLAG_INIT {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}
+#define BUFFER 1024
 
-#define FIELD_BUF_SIZE 50
-
-#define NULL_STRING "(null)"
-
-#define PARAMS_INIT {0, 0, 0, 0, 0, 0, 0, 0, 0, 0}
-
-#define CONVERT_LOWERCASE	1
-#define CONVERT_UNSIGNED	2
-
-/**
- * struct parameters - parameters struct
- *
- * @unsign: flag if unsigned value
- *
- * @plus_flag: on if plus_flag specified
- * @space_flag: on if hashtag_flag specified
- * @hashtag_flag: on if _flag specified
- * @zero_flag: on if _flag specified
- * @minus_flag: on if _flag specified
- *
- * @width: field width specified
- * @precision: field precision specified
- *
- * @h_modifier: on if h_modifier is specified
- * @l_modifier: on if l_modifier is specified
- *
- */
-
-typedef struct parameters
+typedef struct s_options
 {
-	unsigned int unsign			: 1;
+    int plus;
+    int space;
+    int hash;
+    int Long;
+    int Short;
+    int precision;
+    int precision_set;
+    int width;
+    int width_set;
+    int zero;
+    int minus;
+} t_options;
 
-	unsigned int plus_flag		: 1;
-	unsigned int space_flag		: 1;
-	unsigned int hashtag_flag	: 1;
-	unsigned int zero_flag		: 1;
-	unsigned int minus_flag		: 1;
-
-	unsigned int width;
-	unsigned int precision;
-
-	unsigned int h_modifier		: 1;
-	unsigned int l_modifier		: 1;
-} params_t;
-
-/**
- * struct specifier - Struct token
- *
- * @specifier: format token
- * @f: The function associated
- */
-typedef struct specifier
-{
-	char *specifier;
-	int (*f)(va_list, params_t *);
-} specifier_t;
-
-/* _put.c module */
-int _puts(char *str);
-int _putchar(int c);
-
-/* print_functions.c module */
-int print_char(va_list ap, params_t *params);
-int print_int(va_list ap, params_t *params);
-int print_string(va_list ap, params_t *params);
-int print_percent(va_list ap, params_t *params);
-int print_S(va_list ap, params_t *params);
-
-/* number.c module */
-char *convert(long int num, int base, int flags, params_t *params);
-int print_unsigned(va_list ap, params_t *params);
-int print_address(va_list ap, params_t *params);
-
-/* specifier.c module */
-int (*get_specifier(char *s))(va_list ap, params_t *params);
-int get_print_func(char *s, va_list ap, params_t *params);
-int get_flag(char *s, params_t *params);
-int get_modifier(char *s, params_t *params);
-char *get_width(char *s, params_t *params, va_list ap);
-
-/* convert_number.c module */
-int print_hex(va_list ap, params_t *params);
-int print_HEX(va_list ap, params_t *params);
-int print_binary(va_list ap, params_t *params);
-int print_octal(va_list ap, params_t *params);
-
-/* simple_printers.c module */
-int print_from_to(char *start, char *stop, char *except);
-int print_rev(va_list ap, params_t *params);
-int print_rot13(va_list ap, params_t *params);
-int handle_unknown_specifier(const char *format, int printed_chars);
-
-/* print_number.c module */
-int _isdigit(int c);
-int _strlen(char *s);
-int print_number(char *str, params_t *params);
-int print_number_right_shift(char *str, params_t *params);
-int print_number_left_shift(char *str, params_t *params);
-
-/* params.c module */
-void init_params(params_t *params, va_list ap);
-
-/* string_fields.c modoule */
-char *get_precision(char *p, params_t *params, va_list ap);
-
-/* _prinf.c module */
+/* print.c file*/
 int _printf(const char *format, ...);
+int handle_format(va_list args, const char *format, t_options options, int printed_chars);
+int hand_help(const char *format, int printed_chars, va_list args);
+const char *Parse_flags(const char *format, t_options options);
+const char *Parse_f(va_list args, const char *format);
+/*Conversion & number.c file */
+int _atoi(const char *s);
+int _isdigit(int c);
+int count_digits(char *buffer);
+int print_number(char *buffer, t_options options);
 
-#endif /*_MAIN_H_*/
+/* conversion & string */
+int int_to_buffer(int n, char *buffer, int buffer_size);
+int print_padding(int width, int printed_chars, char padding_char);
+int handle_unknown_specifier(const char *format, int printed_chars);
+int handle_reversed_string(va_list args, int printed_chars);
+
+/* Handle_specifier.c */
+int handle_integer(va_list args, int printed_chars, t_options op);
+int print_integer(char *buffer, t_options op, int len, int printed_chars);
+int handle_binary(va_list args, int printed_chars, t_options op);
+int h_unsigned_int(va_list args, int printed_chars, t_options op);
+int handle_octal(va_list args, int printed_chars, t_options op);
+
+/* Handle_Hexa.c */
+int handle_low_hexa(va_list args, int printed_chars, t_options op);
+int handle_upper_hexa(va_list args, int printed_chars, t_options op);
+int handle_string(va_list args, int printed_chars);
+int print_hexa(unsigned int n, const char *charset, int width);
+
+/* Handle_pointer.c */
+int handle_specifier(const char *specifier, va_list args, int printed_chars);
+int handle_pointer(void *ptr, int printed_chars);
+int check_for_unknown_specifier(const char *c);
+int handle_rot13_string(va_list args, int printed_chars);
+
+#endif
